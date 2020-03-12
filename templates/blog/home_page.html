@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title></title>
+
+	<h1>This is home page</h1>
+</head>
+
+
+
+
+<body>
+{% for post in posts %}
+	<p><a href="{% url 'Posts' post.slug %}">{{post.title}}</p></a>
+{% endfor %}
+
+</body>
+
+
+</html>
+
+
+
+<!-- {% for post in post_list %}
+
+<a href='{% url "post" post.slug %}'>{{ post.title }}</a>
+
+
+{% endfor %} -->
