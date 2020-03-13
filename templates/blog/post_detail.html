@@ -2,13 +2,19 @@
 <html>
 <head>
 	<title>{{post.title}}</title>
+		{{post.subtitle}}
 	<h1>{{post.title}}</h1>
 	<h2>{{post.mini_text}}</h2>
 </head>
 
 <body>
 	<p>{{post.text}}</p>
-	{{post.creation_date}}
+	
+
+	<p>{{post.viewed}}</p>
+	<p>{{post.category}}</p>
+	<p>{{post.tags}}</p>
+	<small>{{post.creation_date}}</small>
 </body>
 
 </html>

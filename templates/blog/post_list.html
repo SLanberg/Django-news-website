@@ -4,14 +4,14 @@
 <head>
 	<title></title>
 
-	<h1>This is home page</h1>
+	<h1>This is post_list</h1>
 </head>
 
 
 
 
 <body>
-
+	
 {% for category in categories %}
 	<p><a href="{% url 'category' category.slug %}">{{ category.name }}</a></p>
 {% endfor %}
@@ -24,16 +24,8 @@
 {% endfor %}
 
 
+
 </body>
 
 
 </html>
-
-
-
-<!-- {% for post in post_list %}
-
-<a href='{% url "post" post.slug %}'>{{ post.title }}</a>
-
-
-{% endfor %} -->

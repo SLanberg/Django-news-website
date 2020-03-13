@@ -7,11 +7,12 @@ from .models import (
 )
 
 
-
+class PostAdmin(admin.ModelAdmin):
+	list_display = ('title', 'slug', 'creation_date')
 
 
 admin.site.register(Category)
 admin.site.register(Tag)
-admin.site.register(Post)
+admin.site.register(Post, PostAdmin)
 admin.site.register(Commentary)
 
