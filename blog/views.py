@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.views.generic.base import View
 from django.utils import timezone
+from datetime import datetime
+
+from .forms import CommentaryForm
 
 from .models import (
 	Category,
@@ -11,25 +14,56 @@ from .models import (
 )
 
 
+class CherryPickView(View):
 
-class HomeView(View):
-    """All categories and all posts"""
-    def get(self, request):
-        category_list = Category.objects.all()
-        post_list = Post.objects.filter(published=True, published_date__lte=timezone.now())
-        return render(request, "blog/post_list.html", {"categories": category_list, "post_list": post_list})
+    def get_queryset(self):
+        return Post.objects.filter(published_date__lte=datetime.now(), published=True)
+
+    def get(self, request, category_slug=None, slug=None):
+        category_list = Category.objects.filter(published=True)
+        if category_slug is not None:
+            posts = self.get_queryset().filter(category__slug=category_slug, category__published=True)
+        elif slug is not None:
+            posts = self.get_queryset().filter(tags__slug=slug, tags__published=True)
+        else:
+            posts = self.get_queryset()
+        if posts.exists():
+            template = posts.first().get_category_template()
+        else:
+            template = "blog/post_list.html"
+        return render(request, template, {"post_list": posts, 'categories':category_list})
 
 
 class PostDetailView(View):
     """Show specific post"""
-    def get(self, request, category, slug):
-        category_list = Category.objects.all()
-        post = Post.objects.get(slug=slug)
-        return render(request, post.template, {"categories": category_list, "post": post})
+    def get(self, request, **kwargs):
+        category_list = Category.objects.filter(published=True)
+        post = get_object_or_404(Post, slug=kwargs.get("slug"))
+        form = CommentaryForm()
+        return render(request, post.template, 
+            {"categories": category_list, 
+            "post": post,
+            "form": form}
+        )
 
 
-class CategoryView(View):
-    """Show articles by category"""
-    def get(self, request, slug):
-        category = Category.objects.get(slug=slug)
-        return render(request, "blog/post_list.html", {"category": category})
+    def post(self, request, **kwargs):
+        form = CommentaryForm(request.POST)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.post = Post.objects.get(slug=kwargs.get("slug"))
+            form.author = request.user
+            form.save()
+        return redirect(request.path)
+
+
+
+# class CreateCommentaryView(View):
+#     def post(self, request, pk):
+#         form = CommentaryForm(request.POST)
+#         if form.is_valid():
+#             form            = form.save(commit=False)
+#             form.post_id    = pk
+#             form.author     = request.user
+#             form.save()
+#         return HttpResponse(status=201)

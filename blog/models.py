@@ -27,19 +27,19 @@ class Category(MPTTModel):
 	paginated		= models.PositiveIntegerField(verbose_name='amount of articles on single page', default=5)
 	sort			= models.PositiveIntegerField(default=0)
 
-
-
-
-
-
-
 	def __str__(self):
 		return self.name
 
 
+	def get_absolute_url(self):
+		return reverse('category', kwargs={'category_slug':self.slug})
+
 
 	class Meta:
 		verbose_name_plural = 'categories'
+
+	class MPTTMeta:
+		order_insertion_by = ('sort',)
 
 
 
@@ -47,8 +47,12 @@ class Category(MPTTModel):
 class Tag(models.Model):
 	"""Tag model"""
 	name 		= models.CharField(verbose_name='Tag', max_length=100)
-	slug 		= models.SlugField(verbose_name='Slug', max_length=100, unique=True)
+	slug 		= models.SlugField(max_length=100, unique=True)
 	published	= models.BooleanField(verbose_name='Show tag?', default=True)
+
+
+	def get_absolute_url(self):
+		return reverse('tag', kwargs={'slug':self.slug})
 
 	def __str__(self):
 		return self.name
@@ -68,7 +72,7 @@ class Post(models.Model):
 	mini_text 	  = models.TextField(verbose_name='Mini Text', max_length=100)
 	text 		  = models.TextField(verbose_name='Text', max_length=16000)
 	creation_date = models.DateTimeField(auto_now=True)
-	slug          = models.SlugField(max_length=100, unique=True)
+	slug 		  = models.SlugField(verbose_name="url", max_length=100, unique=True)
 	
 
 
@@ -114,8 +118,17 @@ class Post(models.Model):
 		return reverse('detail_post', kwargs={'category': self.category.slug, 'slug':self.slug})
 
 
+	def get_category_template(self):
+		return self.category.template
+
+
 	def __str__(self):
 		return self.title
+
+	class Meta:
+		ordering = ['-sort', '-published_date']
+
+	
 
 
 
@@ -132,7 +145,7 @@ class Commentary(models.Model):
 	post 		  = models.ForeignKey(Post, verbose_name="Article", on_delete=models.CASCADE, blank=True)
 	text 		  = models.TextField(verbose_name='Text', max_length=244)
 	creation_date = models.DateTimeField(auto_now=True)
-	moderation    = models.BooleanField()
+	moderation    = models.BooleanField(default=True)
 
 
 	def __str__(self):

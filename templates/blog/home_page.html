@@ -16,6 +16,20 @@
 	<p><a href="{% url 'category' category.slug %}">{{ category.name }}</a></p>
 {% endfor %}
 
+---
+{% for tag in post.tag_set.all %}
+
+	<br>
+	<br>
+	{{ tags.slug }}
+	<br>
+	<br>
+
+
+	
+{% endfor %}
+
+
 <hr>
 {% for post in post_list %}
     <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
